@@ -401,46 +401,6 @@ c |       axios.get('/user/me').then(res => {
   | </script>
 ```
 
-```javascript
--------------------------------------------------------------------
-File: frontend/src/App.vue
--------------------------------------------------------------------
-  | <template>
-  |   ...
-c |   <router-view :key="$route.fullPath" @auth-change="onAuthChange" />
-  |   ...
-  | </template>
-  |
-  | <script>
-+ | import axios from 'axios'
-  | 
-  | export default {
-  |   data () {
-  |     return {
-  |       user: null
-  |     }
-  |   },
-+ |   mounted () {
-+ |     this.onAuthChange()
-+ |   },
-+ |   methods: {
-+ |     onAuthChange () {
-+ |       const token = localStorage.getItem('token')
-+ |       if (token) {
-+ |         this.getUser()
-+ |       }
-+ |     },
-+ |     getUser () {
-+ |       const token = localStorage.getItem('token')
-+ |       axios.get('/user/me', { headers: {Authorization: 'Bearer ' + token} }).then(res => {
-+ |         this.user = res.data
-+ |       })
-+ |     },
-+ |   }
-  | }
-  | </script>
-```
-
 ---
 
 ### แบบฝึกหัด
