@@ -36,7 +36,7 @@ CREATE TABLE `tokens` (
 ## Clone / Download
 
 ```bash
-git clone https://github.com/it-web-pro/WEEK12-EXERCISE.git
+git clone https://github.com/it-web-pro/WEEK13-EXERCISE.git
 ```
 
 ## Backend Server
