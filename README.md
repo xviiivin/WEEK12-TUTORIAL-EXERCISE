@@ -1,4 +1,4 @@
-# WEEK13-EXERCISE
+# WEEK12 TUTORIAL
 
 ในสัปดาห์นี้เราจะเรียนเกี่ยวกับการทำระบบ Authentication และ Authorization โดยพระเอกในสัปดาห์นี้คือตัว [Middleware](https://expressjs.com/en/guide/using-middleware.html) ของ express.js
 
@@ -31,12 +31,12 @@ CREATE TABLE `tokens` (
 )
 ```
 
-นักศีกษาสามารถสร้างตารางใหม่เองหรือใช้การ import ข้อมูลจาก `db/webpro-3.sql` ก็ได้
+ให้นักศึกษา drop ตารางข้อมูลเดิมที่มีอยู่ และ ทำการ import ข้อมูลจาก `db/webpro-3.sql` เข้าไปแทนที่ เพื่อใช้ใน tutorial ของสัปดาห์นี้
 
 ## Clone / Download
 
 ```bash
-git clone https://github.com/it-web-pro/WEEK13-EXERCISE.git
+git clone https://github.com/it-web-pro/WEEK12-TUTORIAL-EXERCISE.git
 ```
 
 ## Backend Server
@@ -120,8 +120,8 @@ File: backend/index.js
 
 ```txt
 POST /user/login
-Payment: 
-    username: admi"
+Payload: 
+    username: admin
     password: Aa123456
 Response: 
     { token: "jscRQI1EC!kKdW#en@swQA5jZ9wySb5..." }
@@ -204,7 +204,15 @@ File: backend/routes/user.js
   | exports.router = router
 ```
 
-ทดสอบ API ด้วย Postmann
+ทดสอบ API login ด้วย Postmann โดยใช้ข้อมูลดังนี้
+```txt
+POST /user/login
+Payload: 
+    username: admin
+    password: Aa123456
+```
+
+ในกรณีที่ Login สำเร็จ เมื่อเปิดดูใน Database ตาราง tokens จะพบว่ามีข้อมูล tokens ถูก insert เข้ามา 1 แถว
 
 ## 3. Protected API
 
@@ -267,15 +275,19 @@ File: backend/routes/user.js
   | //...
   |
 + | router.get('/user/me', isLoggedIn, async (req, res, next) => {
++ |     // req.user ถูก save ข้อมูล user จาก database ใน middleware function "isLoggedIn"
 + |     res.json(req.user)
 + | })
   |
   | exports.router = router
 ```
 
+ในขั้นตอนนี้เราได้ทำการสร้าง middleware `isLoggedIn` เพื่อตรวจสอบ token ที่แนบมากับ header ของ request 
+โดยนำ token ที่แนบมาไปดึงข้อมูลจากตาราง `tokens` เพื่อหา `user_id` สำหรับใช้ในการดึงข้อมูล user จากตาราง `users` ต่อไป  
+
 ## 4. Login Page
 
-ทำการ Login โดยใช้ axios ส่ง username, password ไปแลก token มาและบันทึกลง LocalStorage
+ในขั้นตอนนี้เราจะทำการ Login โดยใช้ axios ส่ง username, password ไปแลก token มาและบันทึกลง LocalStorage
 
 ```javascript
 -------------------------------------------------------------------
