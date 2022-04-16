@@ -223,6 +223,7 @@ Payload:
 File: backend/middlewares/index.js
 -------------------------------------------------------------------
   | //...
++ | const pool = require("../config");
   |
 + | async function isLoggedIn (req, res, next) {
 + |     let authorization = req.headers.authorization
@@ -282,17 +283,23 @@ File: backend/routes/user.js
   | exports.router = router
 ```
 
-ในขั้นตอนนี้เราได้ทำการสร้าง middleware `isLoggedIn` เพื่อตรวจสอบ token ที่แนบมากับ header ของ request 
-โดยนำ token ที่แนบมาไปดึงข้อมูลจากตาราง `tokens` เพื่อหา `user_id` สำหรับใช้ในการดึงข้อมูล user จากตาราง `users` ต่อไป  
+ในขั้นตอนนี้เราได้ทำการสร้าง middleware `isLoggedIn` เพื่อตรวจสอบ token ที่แนบมากับ header ของ request โดยนำ token ที่แนบมาไปดึงข้อมูลจากตาราง `tokens` เพื่อหา `user_id` สำหรับใช้ในการดึงข้อมูล user จากตาราง `users` ต่อไป  
 
 ## 4. Login Page
 
-ในขั้นตอนนี้เราจะทำการ Login โดยใช้ axios ส่ง username, password ไปแลก token มาและบันทึกลง LocalStorage
+ในขั้นตอนนี้เราจะทำการ Login โดยใช้ axios ส่ง username, password ไปแลก token มาและบันทึกลง localStorage
 
 ```javascript
 -------------------------------------------------------------------
 File: frontend/src/views/Login.vue
 -------------------------------------------------------------------
+  | <template>
+  |   ...
+c |   <button class="button is-primary is-fullwidth" @click="submit">
+  |     Login
+  |   </button>
+  |   ...
+  | </template>
   | <script>
 + | import axios from 'axios'
   | 
@@ -371,7 +378,37 @@ c |   <router-view :key="$route.fullPath" @auth-change="onAuthChange" />
 ```
 
 เนื่องจากเราต้องทำ `headers` ทุกครั้งที่มีการเรียกใช้ API การที่ต้อง copy โค๊ดส่วนนี้ไปทุกครั้งก็จะทำให้มีการ Duplication เกิดขึ้น และ ทำให้โค๊ดอ่านยากขึ้นด้วย
-เราสามารถใช้ [axios interceptor](https://github.com/axios/axios#interceptors) เข้ามาแก้ปัญหานี้ได้
+เราสามารถใช้ [axios interceptor](https://github.com/axios/axios#interceptors) เข้ามาแก้ปัญหานี้ได้ โดย axios interceptor สามารถเขียนได้ดังในไฟล์ `frontend/src/plugins/axios.js`
+
+```javascript
+-------------------------------------------------------------------
+File: frontend/src/plugins/axios.js
+-------------------------------------------------------------------
+import axios from 'axios'
+
+const instance = axios.create({
+    baseURL: 'http://localhost:3000',
+})
+
+instance.interceptors.request.use(
+    function (config) {
+        const token = localStorage.getItem('token')
+        if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`
+        }
+        return config;
+    },
+    function (error) {
+        return Promise.reject(error);
+    }
+);
+
+export default instance
+```
+
+จะเห็นได้ว่าใน axios interceptor จะทำการแนบ `token` ที่บันทึกไว้ใน localStorage ไปใน header `Authorization` ด้วยทุกครั้งที่มีการส่ง request ด้วย axios
+
+ดังนั้นในไฟล์ frontend/src/App.vue จึงไม่จำเป็นต้องแนบ `token` ไปใน header อีกต่อไป
 
 ```javascript
 -------------------------------------------------------------------
@@ -412,6 +449,10 @@ c |       axios.get('/user/me').then(res => {
   | }
   | </script>
 ```
+
+ลองทำการ login ในหน้า `http://localhost:8080/#/user/login` โดยใช้ username: admin และ password: Aa123456
+
+เมื่อ login สำเร็จจะเข้าสู่หน้า Index โดยให้สังเกตที่มุมขวาของหน้าจอจะเห็น ชื่อ นามสกุล ของ user ที่ login
 
 ---
 
@@ -487,7 +528,7 @@ c | router.post("/blogs", isLoggedIn, upload.array("myImage", 5), async function
 
 ## 5. Navigation Guard
 
-ในฝั่ง frontend เราไม่ต้องการใช้ผู้ใช้ที่ยังไม่ได้เข้าสู่ระบบเข้าสู่หน้าสร้าง Blog ได้  
+ในฝั่ง `frontend` เราไม่ต้องการใช้ผู้ใช้ที่ยังไม่ได้เข้าสู่ระบบเข้าสู่หน้าสร้าง Blog ได้  
 เราสามารถกำหนดกฎเกณฑ์นี้ได้ด้วย [Navigation Guaurd](https://router.vuejs.org/guide/advanced/navigation-guards.html#global-before-guards) ของ Vue Router
 
 โดย
