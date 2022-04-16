@@ -17,25 +17,21 @@ const routes = [
   {
     path: '/blogs/create',
     name: 'create-blog',
-    meta: { login: true },
     component: () => import('../views/blogs/CreateBlog.vue')
   },
   {
     path: '/blogs/update/:id',
     name: 'update-blog',
-    meta: { login: true },
     component: () => import('../views/blogs/UpdateBlog.vue')
   },
   {
     path: '/user/signup',
     name: 'signup',
-    meta: { guess: true },
     component: () => import('../views/Signup.vue')
   },
   {
     path: '/user/login',
     name: 'login',
-    meta: { guess: true },
     component: () => import('../views/Login.vue')
   }
 ]
