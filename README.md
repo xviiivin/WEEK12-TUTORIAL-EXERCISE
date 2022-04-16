@@ -452,7 +452,11 @@ c |       axios.get('/user/me').then(res => {
 
 ลองทำการ login ในหน้า `http://localhost:8080/#/user/login` โดยใช้ username: admin และ password: Aa123456
 
+![image](https://user-images.githubusercontent.com/77012730/163679555-65d9de81-dda4-40db-a2ee-bc853bd9252a.png)
+
 เมื่อ login สำเร็จจะเข้าสู่หน้า Index โดยให้สังเกตที่มุมขวาของหน้าจอจะเห็น ชื่อ นามสกุล ของ user ที่ login
+
+![image](https://user-images.githubusercontent.com/77012730/163679576-102104c5-7f0a-421a-8b9d-35cab81a4f17.png)
 
 ---
 
